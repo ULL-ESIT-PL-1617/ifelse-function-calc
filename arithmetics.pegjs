@@ -11,7 +11,7 @@
 }
 
 start
-  = assign { console.log(util.inspect(symbolTable,{ depth: null})); }
+  = assign { console.log(util.inspect(symbolTable,{ depth: null})); return symbolTable; }
 
 assign
   = id:ID ASSIGN a:additive {
