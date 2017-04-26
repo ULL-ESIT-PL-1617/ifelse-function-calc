@@ -1,0 +1,20 @@
+{
+  "name": "pegjs-calc-assign",
+  "version": "1.0.0",
+  "description": "Ejercicio de pegjs para PL del Grado de Informática. ULL",
+  "main": "main.js",
+  "scripts": {
+    "test": "pegjs arithmetics.pegjs && node main.js 'a = 4*5'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ULL-ESIT-PL-1617/pegjs-calc-assign.git"
+  },
+  "keywords": [peg, pegjs],
+  "author": "Casiano Rodriguez-Leon <casiano.rodriguez.leon@gmail.com> (https://github.com/crguezl)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ULL-ESIT-PL-1617/pegjs-calc-assign/issues"
+  },
+  "homepage": "https://github.com/ULL-ESIT-PL-1617/pegjs-calc-assign#readme"
+}
