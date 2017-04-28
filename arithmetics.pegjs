@@ -22,11 +22,6 @@ comma
         return (right.length > 0) ? right[right.length - 1][1] : left;
     }
 
-conditional
-  = IF comparison THEN comparison (ELSE comparison)? {
-    return 1;
-  }
-
 assign
   = id:ID ASSIGN a:assign {
          if (constantSymbols.has(id.toLowerCase()))
@@ -34,7 +29,13 @@ assign
          symbolTable[id] = a;
          return a;
       }
+  / conditional
   / comparison
+
+conditional
+  = IF cond:comparison THEN actionsif:comparison ELSE actionselse:comparison {
+    return cond ? actionsif : actionselse;
+  }
 
 comparison
   = left:additive comp:COMPARISON right:additive {
