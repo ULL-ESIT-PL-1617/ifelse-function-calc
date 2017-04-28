@@ -7,13 +7,18 @@
   var symbolTable = {
     PI: Math.PI
   };
-
+  var results = []
 }
 
 start
-  = a:assign { 
-               return {symbolTable: symbolTable, result: a }
-             }
+  = a:comma {
+             return {symbolTable: symbolTable, result: a, results: results}
+           }
+
+comma
+  = left:assign right:(COMMA assign)* {
+        return (right.length > 0) ? right[right.length - 1][1] : left;
+    }
 
 assign
   = id:ID ASSIGN a:additive {
@@ -23,7 +28,7 @@ assign
   / additive
 
 additive
-  = left:multiplicative rest:(ADDOP multiplicative)* { 
+  = left:multiplicative rest:(ADDOP multiplicative)* {
        let sum = left;
        rest.forEach( (x) => {
          eval(`sum ${x[0]}= ${x[1]}`);
@@ -33,7 +38,7 @@ additive
   / multiplicative
 
 multiplicative
-  = left:primary rest:(MULOP primary)* { 
+  = left:primary rest:(MULOP primary)* {
       return rest.reduce((prod, [op, num])=>{ return eval(prod+op+num); },left);
     }
   / primary
@@ -56,7 +61,7 @@ MULT = _"*"_  { return '*'; }
 DIV = _"/"_   { return '/'; }
 LEFTPAR = _"("_
 RIGHTPAR = _")"_
+COMMA = _","_
 NUMBER = _ digits:$[0-9]+ _ { return parseInt(digits, 10); }
 ID = _ id:$([a-z_]i$([a-z0-9_]i*)) _ { console.log(id); return id; }
 ASSIGN = _ '=' _
-
