@@ -80,7 +80,7 @@ primary
   = integer
   / function_call
   / id:ID { if (!symbolTable[id]) { throw id + " not defined"; } return symbolTable[id]; }
-  / LEFTPAR assign:assign RIGHTPAR { return assign; }
+  / LEFTPAR assign:comma RIGHTPAR { return assign; }
 
 function_call
   = id:ID LEFTPAR params:(primary (COMMA primary)*) RIGHTPAR {

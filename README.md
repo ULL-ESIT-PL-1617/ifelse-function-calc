@@ -7,6 +7,21 @@
 * Use su portátil o su cuenta en c9 para llevar a cabo los objetivos planteados.
 * Esta práctica se divide en objetivos o hitos:  indique al profesor  cuando ha terminado y suba los enlaces a los repos y despliegues.
 
+### Reglas
+
+```
+start               -> comma
+comma               -> assign (',' assign)
+assign              -> id '=' assign / conditional / comparison / function_definition
+conditional         -> IF comparison THEN comparison ELSE comparison
+comparison          -> additive COMPARISON additive / additive
+additive            -> multiplicative (ADDOP multiplicative)*
+multiplicative      -> primary (MULOP primary)*
+function_definition -> '->' '(' (ID (',' ID)*)? ')' [,^\n]*
+primary             -> integer / function_call / ID / '(' comma ')'
+function_call       -> ID '(' (primary (',' primary)*)? ')'
+```
+
 ### Descripción
 
 Este es el PEG de partida::
@@ -54,9 +69,9 @@ ASSIGN = _ '=' _
 
 1. Añada múltiples expresiones separadas por comas:  `2*3, 4+5+2, 8-1`
 3. Añada los operadores de comparación: `a = 4, b = a < 5, c = a >= 4, d = a ==  4`
-  - Cualquier número distinto de cero se considera verdadero 
+  - Cualquier número distinto de cero se considera verdadero
   - El cero es falso
-4. Añada constantes `true` y `false` a su lenguaje que se asimilan a los valores 0 y 1. Dado que son constantes no pueden ser modificadas. 
+4. Añada constantes `true` y `false` a su lenguaje que se asimilan a los valores 0 y 1. Dado que son constantes no pueden ser modificadas.
   - Ejemplo:  `a = true, c = (5 < 5) == false`
   - Esta operación debería dar un error o no efectuarse:  `true = 0`
 5. Añada expresiones condicionales:  `d = if 2<a then b else c`  
@@ -75,4 +90,3 @@ ASSIGN = _ '=' _
 * [Covering](https://casianorodriguezleon.gitbooks.io/ull-esit-1617/content/apuntes/pruebas/covering.html)
 * [Blanket](https://casianorodriguezleon.gitbooks.io/ull-esit-1617/content/apuntes/pruebas/blanket.html)
 * [Repo con la solución](https://github.com/ULL-ESIT-PL-1617/solution-evalua-pdr)
-
