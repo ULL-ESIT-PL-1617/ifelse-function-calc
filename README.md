@@ -11,7 +11,7 @@
 
 ```
 start               -> comma
-comma               -> assign (',' assign)
+comma               -> assign (',' assign)*
 assign              -> id '=' assign / conditional / comparison / function_definition
 conditional         -> IF comparison THEN comparison ELSE comparison
 comparison          -> additive COMPARISON additive / additive
