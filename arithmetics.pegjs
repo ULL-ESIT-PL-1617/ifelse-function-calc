@@ -25,12 +25,13 @@ comma
 assign
   = id:ID ASSIGN a:assign {
          if (constantSymbols.has(id.toLowerCase()))
-          throw "Cant override value of constant " + id.toLowerCase();
+            throw "Cant override value of constant " + id.toLowerCase();
          symbolTable[id] = a;
          return a;
       }
   / conditional
   / comparison
+  / function_definition
 
 conditional
   = IF cond:comparison THEN actionsif:comparison ELSE actionselse:comparison {
@@ -54,6 +55,21 @@ additive
     }
   / multiplicative
 
+function_definition
+  = DEFINITION LEFTPAR params:(ID (COMMA ID)*)? RIGHTPAR code:[^,\n]* {
+        let params_array = [];
+        if (params) {
+          params_array.push(params[0])
+          params[1].forEach((x) => {
+            params_array.push(x[1]);
+          });
+        }
+        return {
+          params: params_array,
+          code: code.join("")
+        }
+  }
+
 multiplicative
   = left:primary rest:(MULOP primary)* {
       return rest.reduce((prod, [op, num])=>{ return eval(prod+op+num); },left);
@@ -62,8 +78,25 @@ multiplicative
 
 primary
   = integer
-  / id:ID  { return symbolTable[id]; }
+  / function_call
+  / id:ID { if (!symbolTable[id]) { throw id + " not defined"; } return symbolTable[id]; }
   / LEFTPAR assign:assign RIGHTPAR { return assign; }
+
+function_call
+  = id:ID LEFTPAR params:(primary (COMMA primary)*) RIGHTPAR {
+      let result = undefined;
+      let function_def = symbolTable[id];
+      let code = "";
+
+      if (params) {
+        code += `let ${function_def.params[0]} = ${params[0]};`
+        for (let i = 1; i < params[1].length; ++i)
+          code += `let ${function_def.params[i]} = ${params[1][i]};`
+      }
+
+      eval(code + `result = ` + symbolTable[id].code)
+      return result;
+    }
 
 integer "integer"
   = NUMBER
@@ -79,6 +112,7 @@ DIV   = _"/"_ { return '/'; }
 COMPARISON =   _[<>=!]"="_ / _[<>]_
 LEFTPAR = _"("_
 RIGHTPAR = _")"_
+DEFINITION = _"->"_
 COMMA = _","_
 IF = _"if"_
 ELSE = _"else"_
