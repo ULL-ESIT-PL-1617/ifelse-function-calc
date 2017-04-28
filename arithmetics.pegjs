@@ -4,15 +4,17 @@
  */
 {
   var util = require('util');
+  var constantSymbols = new Set(["pi", "true", "false"])
   var symbolTable = {
-    PI: Math.PI
+    PI: Math.PI,
+    true: 1,
+    false: 0
   };
-  var results = []
 }
 
 start
   = a:comma {
-             return {symbolTable: symbolTable, result: a, results: results}
+             return {symbolTable: symbolTable, result: a}
            }
 
 comma
@@ -20,12 +22,26 @@ comma
         return (right.length > 0) ? right[right.length - 1][1] : left;
     }
 
+conditional
+  = IF comparison THEN comparison (ELSE comparison)? {
+    return 1;
+  }
+
 assign
-  = id:ID ASSIGN a:additive {
+  = id:ID ASSIGN a:assign {
+         if (constantSymbols.has(id.toLowerCase()))
+          throw "Cant override value of constant " + id.toLowerCase();
          symbolTable[id] = a;
          return a;
       }
-  / additive
+  / comparison
+
+comparison
+  = left:additive comp:COMPARISON right:additive {
+    let boolean = false;
+    eval(`boolean = ${left} ${comp[1]}${comp[2]} ${right}`)
+    return boolean;
+  } / additive
 
 additive
   = left:multiplicative rest:(ADDOP multiplicative)* {
@@ -55,13 +71,18 @@ _ = $[ \t\n\r]*
 
 ADDOP = PLUS / MINUS
 MULOP = MULT / DIV
-PLUS = _"+"_  { return '+'; }
+PLUS  = _"+"_ { return '+'; }
 MINUS = _"-"_ { return '-'; }
-MULT = _"*"_  { return '*'; }
-DIV = _"/"_   { return '/'; }
+MULT  = _"*"_ { return '*'; }
+DIV   = _"/"_ { return '/'; }
+COMPARISON =   _[<>=!]"="_ / _[<>]_
 LEFTPAR = _"("_
 RIGHTPAR = _")"_
 COMMA = _","_
+IF = _"if"_
+ELSE = _"else"_
+THEN = _"then"_
+
 NUMBER = _ digits:$[0-9]+ _ { return parseInt(digits, 10); }
-ID = _ id:$([a-z_]i$([a-z0-9_]i*)) _ { console.log(id); return id; }
+ID = _ id:$([a-z_]i$([a-z0-9_]i*)) _ { return id; }
 ASSIGN = _ '=' _
