@@ -154,7 +154,7 @@ NUMBER = _ digits:$[0-9]+ _ { return parseInt(digits, 10); }
 ID = _ id:$([a-z_]i$([a-z0-9_]i*)) _ { return id; }
 ASSIGN = _ '=' _
 
-/**************************************************/
+/************** DO NOTHING SCHEME: KEEP IN SYNCHRO WITH MAIN GRAMMAR *********************/
 
 dn_start
   = $dn_comma 
