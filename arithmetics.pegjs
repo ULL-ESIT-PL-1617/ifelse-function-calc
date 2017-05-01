@@ -10,11 +10,18 @@
     true: 1,
     false: 0
   };
+  var calcEval = function(input){
+    let PEG = require('./arithmetics.js');
+    let result = PEG.parse(input);
+    //console.log(util.inspect(result));
+    return result;
+  };
 }
 
 start
   = a:comma {
-             return {symbolTable: symbolTable, result: a}
+             console.log(symbolTable);
+             return a;
            }
 
 comma
@@ -56,7 +63,7 @@ additive
   / multiplicative
 
 function_definition
-  = DEFINITION LEFTPAR params:(ID (COMMA ID)*)? RIGHTPAR code:[^,\n]* {
+  = DEFINITION LEFTPAR params:(ID (COMMA ID)*)? RIGHTPAR code:$[^,\n]* {
         let params_array = [];
         if (params) {
           params_array.push(params[0])
@@ -66,7 +73,7 @@ function_definition
         }
         return {
           params: params_array,
-          code: code.join("")
+          code: code
         }
   }
 
@@ -83,20 +90,28 @@ primary
   / LEFTPAR assign:comma RIGHTPAR { return assign; }
 
 function_call
-  = id:ID LEFTPAR params:(primary (COMMA primary)*) RIGHTPAR {
-      let result = undefined;
+  = id:ID LEFTPAR params:params RIGHTPAR {
+      let result = 0;
+      //console.log(params);
       let function_def = symbolTable[id];
       let code = "";
 
-      if (params) {
-        code += `let ${function_def.params[0]} = ${params[0]};`
-        for (let i = 1; i < params[1].length; ++i)
-          code += `let ${function_def.params[i]} = ${params[1][i]};`
+      if (params.length > 0) {
+        for (let i = 0; i < params.length; ++i)
+          code += `${function_def.params[i]} = ${params[i]},\n`
       }
 
-      eval(code + `result = ` + symbolTable[id].code)
-      return result;
+      code += symbolTable[id].code;
+      //console.log(code);
+      return calcEval(code);
     }
+
+params = r:(assign COMMA)* p1:assign? {
+           if (!p1) return [];
+           let params = (r.map(([p,_]) => p)).concat([ p1 ]);
+           //console.log(params);
+           return params;
+         }
 
 integer "integer"
   = NUMBER
@@ -113,7 +128,7 @@ COMPARISON =   _[<>=!]"="_ / _[<>]_
 LEFTPAR = _"("_
 RIGHTPAR = _")"_
 DEFINITION = _"->"_
-COMMA = _","_
+COMMA = _","_ { return ','; }
 IF = _"if"_
 ELSE = _"else"_
 THEN = _"then"_

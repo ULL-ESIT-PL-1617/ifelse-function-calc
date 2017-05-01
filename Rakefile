@@ -13,7 +13,7 @@ end
 
 desc "Run and use the parser generated from arithmetics.pegjs"
 task :run => :compile do
-  sh "node mainfromfile.js input1"
+  sh "node mainfromfile.js input2"
 end
 
 desc "clean derived files"
