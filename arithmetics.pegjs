@@ -3,16 +3,19 @@
  * "2*(3+4)". The parser generated from this grammar then computes their value.
  */
 {
+  var Parser = this;
+
   var util = require('util');
   var constantSymbols = new Set(["pi", "true", "false"])
-  var symbolTable = {
+  Parser.symbolTable = Parser.symbolTable || {
     PI: Math.PI,
     true: 1,
     false: 0
   };
   var calcEval = function(input){
     let PEG = require('./arithmetics.js');
-    let result = PEG.parse(input);
+    PEG.symbolTable = Parser.symbolTable;
+    let result = PEG.parse(input /*, symbolTable */);
     //console.log(util.inspect(result));
     return result;
   };
@@ -20,7 +23,7 @@
 
 start
   = a:comma {
-             console.log(symbolTable);
+             console.log(Parser.symbolTable);
              return a;
            }
 
@@ -33,7 +36,7 @@ assign
   = id:ID ASSIGN a:assign {
          if (constantSymbols.has(id.toLowerCase()))
             throw "Cant override value of constant " + id.toLowerCase();
-         symbolTable[id] = a;
+         Parser.symbolTable[id] = a;
          return a;
       }
   / conditional
@@ -41,7 +44,7 @@ assign
   / function_definition
 
 conditional
-  = IF cond:comparison THEN actionsif:comparison ELSE actionselse:comparison {
+  = IF cond:comparison THEN actionsif:comma ELSE actionselse:comma {
     return cond ? actionsif : actionselse;
   }
 
@@ -71,6 +74,8 @@ function_definition
             params_array.push(x[1]);
           });
         }
+        console.log(params_array);
+        console.log(code);
         return {
           params: params_array,
           code: code
@@ -86,23 +91,25 @@ multiplicative
 primary
   = integer
   / function_call
-  / id:ID { if (!symbolTable[id]) { throw id + " not defined"; } return symbolTable[id]; }
+  / id:ID { if (!Parser.symbolTable[id]) { throw id + " not defined"; } return Parser.symbolTable[id]; }
   / LEFTPAR assign:comma RIGHTPAR { return assign; }
 
 function_call
   = id:ID LEFTPAR params:params RIGHTPAR {
       let result = 0;
-      //console.log(params);
-      let function_def = symbolTable[id];
+      console.log(params);
+      console.log(Parser.symbolTable);
+      let function_def = Parser.symbolTable[id];
       let code = "";
 
       if (params.length > 0) {
-        for (let i = 0; i < params.length; ++i)
+        for (let i = 0; i < params.length; ++i) {
+          console.log(code);
           code += `${function_def.params[i]} = ${params[i]},\n`
+        }
       }
 
-      code += symbolTable[id].code;
-      //console.log(code);
+      code += Parser.symbolTable[id].code;
       return calcEval(code);
     }
 
