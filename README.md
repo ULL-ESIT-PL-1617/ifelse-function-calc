@@ -1,3 +1,8 @@
+* Modificaciones del profesor a partir de la tarea entregada por Ediolot.
+* Incluye if-else corregido y funciones.
+* La estrucutra inicial de calculadora hace dificil el manejo de funciones y de
+if else
+
 ### Aceptar Tarea
 
 * [Aceptar asignación de la tarea]()
