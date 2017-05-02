@@ -4,6 +4,7 @@
  */
 {
   var Parser = this;
+  var prefix = ">";
 
   var util = require('util');
   var constantSymbols = new Set(["pi", "true", "false"])
@@ -13,10 +14,13 @@
     false: 0
   };
   var calcEval = function(input){
+    // console.log(`calcEval('${input}')`);
     let PEG = require('./arithmetics.js');
     PEG.symbolTable = Parser.symbolTable;
+    prefix += ">";
     let result = PEG.parse(input /*, symbolTable */);
     //console.log(util.inspect(result));
+    prefix = prefix.slice(1);
     return result;
   };
 }
@@ -45,8 +49,14 @@ assign
 
 conditional
   = IF cond:comparison THEN actionsif:dn_assign ELSE actionselse:dn_assign {
-    //console.log('condition = '+cond);
-    return cond ? calcEval(actionsif) : calcEval(actionselse);
+    //console.log('condition = '+cond+' actionsif = '+actionsif+" actionselse = "+actionselse);
+    if (cond) {
+       //console.log("cond es true"); 
+       return calcEval(actionsif);
+    } else {
+      //console.log("cond es falsa actionelse = "+actionselse+" st = "+util.inspect(Parser.symbolTable));
+      return calcEval(actionselse);
+    }
   }
 
 comparison
@@ -68,7 +78,7 @@ additive
   / multiplicative
 
 function_definition
-  = DEFINITION LEFTPAR params:(ID (COMMA ID)*)? RIGHTPAR code:$[^,\n]* {
+  = DEFINITION LEFTPAR params:(ID (COMMA ID)*)? RIGHTPAR code:dn_assign {
         let params_array = [];
         if (params) {
           params_array.push(params[0])
@@ -92,9 +102,13 @@ multiplicative
 
 primary
   = integer
+  / PRINT p:primary { console.log(prefix+" "+p); return p; }
   / function_call
-  / PRINT p:primary { console.log(">> "+p); return p; }
-  / id:ID { if (!(id in Parser.symbolTable)) { throw id + " not defined"; } return Parser.symbolTable[id]; }
+  / id:ID { 
+            if (!(id in Parser.symbolTable)) { 
+              throw id + " not defined"; } 
+              return Parser.symbolTable[id]; 
+          }
   / LEFTPAR assign:comma RIGHTPAR { return assign; }
 
 function_call
