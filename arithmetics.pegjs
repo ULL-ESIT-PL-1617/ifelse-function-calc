@@ -177,7 +177,7 @@ dn_comma
   = dn_assign (dn_COMMA dn_assign)*
 
 dn_assign
-  = $dn_ID $dn_ASSIGN $dn_assign { return text; }
+  = $dn_ID $dn_ASSIGN $dn_assign { return text(); }
   / $dn_conditional
   / $dn_comparison
   / $dn_function_definition
